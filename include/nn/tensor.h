@@ -29,7 +29,7 @@ class Tensor {
     const std::vector<std::size_t> &stride() const;
   
     std::shared_ptr<Tensor> operator+(std::shared_ptr<Tensor> other);
-    std::shared_ptr<Tensor> operator*(const Tensor &other);
+    std::shared_ptr<Tensor> operator*(std::shared_ptr<Tensor> other);
     
     friend std::ostream &operator<<(std::ostream &os, const Tensor &obj);
 

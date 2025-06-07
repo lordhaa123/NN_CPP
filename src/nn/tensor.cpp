@@ -203,5 +203,65 @@ std::shared_ptr<Tensor> Tensor::operator+(std::shared_ptr<Tensor> other) {
 }
 
 std::shared_ptr<Tensor> Tensor::operator*(std::shared_ptr<Tensor> other) {
-    
+
+    if(this->_shape.size() == 0 && other->shape().size() == 0) {
+        float result = this->item() * other->item();
+        return std::make_shared<Tensor>(result);
+    }
+
+    if(this->_shape[this->_shape.size() - 1] != other->shape()[0]) {
+        throw std::invalid_argument("Shapes do not match for multiplication: (" + std::to_string(this->_shape[0]) + ", " + std::to_string(this->_shape[1]) + ") vs (" + std::to_string(other->shape()[0]) + ", " + std::to_string(other->shape()[1]) + ")");
+    }
+
+    // 1D tensor * 1D tensor
+    if(this->_shape.size() == 1 && other->shape().size() == 1) {
+        float result = 0;
+        for(std::size_t i = 0; i < this->_shape[0]; i++) {
+            result += (*this)(i) * (*other)(i);
+        }
+        return std::make_shared<Tensor>(result);
+    }
+
+    // 2D tensor * 1D tensor
+    if(this->_shape.size() == 2 && other->shape().size() == 1) {
+        std::vector<float> result(this->_shape[0]);
+        for(std::size_t i = 0; i < this->_shape[0]; i++) {
+            float sum = 0;
+            for(std::size_t j = 0; j < this->_shape[1]; j++) {
+                sum += (*this)(i, j) * (*other)(j);
+            }
+            result[i] = sum;
+        }
+        return std::make_shared<Tensor>(result);
+    }
+
+    // 1D tensor * 2D tensor
+    if(this->_shape.size() == 1 && other->shape().size() == 2) {
+        std::vector<float> result(other->shape()[1]);
+        for(std::size_t j = 0; j < other->shape()[1]; j++) {
+            float sum = 0;
+            for(std::size_t i = 0; i < this->_shape[0]; i++) {
+                sum += (*this)(i) * (*other)(i, j);
+            }
+            result[j] = sum;
+        }
+        return std::make_shared<Tensor>(result);
+    }
+
+    // 2D tensor * 2D tensor
+    if(this->_shape.size() == 2 && other->shape().size() == 2) {
+    std::vector<std::vector<float>> result(this->_shape[0], std::vector<float>(other->shape()[1], 0.0f));
+        for(std::size_t i = 0; i < this->_shape[0]; i++) {
+            std::vector<float> result_row(other->shape()[1], 0.);
+            for(std::size_t j = 0; j < other->shape()[1]; j++) {
+                float sum = 0;
+                for(std::size_t k = 0; k < this->_shape[1]; k++) {
+                    sum += (*this)(i, k) * (*other)(k, j);
+                }
+                result_row[j] = sum;
+            }
+            result[i] = result_row;
+        }
+        return std::make_shared<Tensor>(result);
+    }
 }
