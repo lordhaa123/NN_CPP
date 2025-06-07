@@ -204,6 +204,68 @@ int main() {
 
     }
 
+    // testing tensor multiplication
+    {
+        // scalar * scalar
+        std::shared_ptr<Tensor> scalar1 = std::make_shared<Tensor>(2.4f);
+        std::shared_ptr<Tensor> scalar2 = std::make_shared<Tensor>(3.6f);
+        std::shared_ptr<Tensor> scalar_product = (*scalar1) * scalar2;
+        if(scalar_product->item() == 8.64f) {
+            std::cout << "PASS : " << "Scalar multiplication result: " << scalar_product->item() << std::endl;
+        } else {
+            all_tests_passed = false;
+            std::cerr << "FAIL : " << "Error: Expected 8.64f but got " << scalar_product->item() << std::endl;
+        }
+
+        // 1D * 1D
+        std::shared_ptr<Tensor> vector1 = std::make_shared<Tensor>(std::vector<float>{1.1f, 2.2f, 3.3f});
+        std::shared_ptr<Tensor> vector2 = std::make_shared<Tensor>(std::vector<float>{4.4f, 5.5f, 6.6f});
+        std::shared_ptr<Tensor> vector_product = (*vector1) * vector2;
+        if(vector_product->shape().size() == 0 && vector_product->item() == 38.72f) {
+            std::cout << "PASS : " << "Vector multiplication result: " << *vector_product << std::endl;
+        } else {
+            all_tests_passed = false;
+            std::cerr << "FAIL : " << "Error: Expected [38.72] but got " << *vector_product << std::endl;
+        }
+
+        // 1D * 2D
+        std::shared_ptr<Tensor> vector3 = std::make_shared<Tensor>(std::vector<float>{1.1f, 2.2f, 3.3f});
+        std::shared_ptr<Tensor> matrix1 = std::make_shared<Tensor>(std::vector<std::vector<float>>{{4.4f, 5.5f}, {6.6f, 7.7f}, {8.8f, 9.9f}});
+        std::shared_ptr<Tensor> vector_matrix_product = (*vector3) * matrix1;
+        if(vector_matrix_product->shape().size() == 1 && vector_matrix_product->shape()[0] == 2 &&
+           (*vector_matrix_product)(0) == 48.4f && (*vector_matrix_product)(1) == 55.66f) {
+            std::cout << "PASS : " << "Vector * Matrix multiplication result: " << *vector_matrix_product << std::endl;
+        } else {
+            all_tests_passed = false;
+            std::cerr << "FAIL : " << "Error: Expected [48.4, 55.66] but got " << *vector_matrix_product << std::endl;
+        }
+
+        // 2D * 1D
+        std::shared_ptr<Tensor> matrix2 = std::make_shared<Tensor>(std::vector<std::vector<float>>{{1.1f, 2.2f, 3.3f}, {4.4f, 5.5f, 6.6f}});
+        std::shared_ptr<Tensor> vector4 = std::make_shared<Tensor>(std::vector<float>{7.7f, 8.8f, 9.9f});
+        std::shared_ptr<Tensor> matrix_vector_product = (*matrix2) * vector4;
+        if(matrix_vector_product->shape().size() == 1 && matrix_vector_product->shape()[0] == 2 &&
+           (*matrix_vector_product)(0) == 60.5f && (*matrix_vector_product)(1) == 147.62f) {
+            std::cout << "PASS : " << "Matrix * Vector multiplication result: " << *matrix_vector_product << std::endl;
+        } else {
+            all_tests_passed = false;
+            std::cerr << "FAIL : " << "Error: Expected [60.5f, 147.62] but got " << *matrix_vector_product << std::endl;
+        }
+
+        // 2D * 2D
+        std::shared_ptr<Tensor> matrix3 = std::make_shared<Tensor>(std::vector<std::vector<float>>{{1.1f, 2.2f}, {3.3f, 4.4f}});
+        std::shared_ptr<Tensor> matrix4 = std::make_shared<Tensor>(std::vector<std::vector<float>>{{5.5f, 6.6f}, {7.7f, 8.8f}});
+        std::shared_ptr<Tensor> matrix_product = (*matrix3) * matrix4;
+        if(matrix_product->shape().size() == 2 && matrix_product->shape()[0] == 2 && matrix_product->shape()[1] == 2 &&
+           (*matrix_product)(0, 0) == 22.99f && (*matrix_product)(0, 1) == 26.62f &&
+           (*matrix_product)(1, 0) == 52.03f && (*matrix_product)(1, 1) == 60.5f) {
+            std::cout << "PASS : " << "Matrix * Matrix multiplication result: " << *matrix_product << std::endl;
+        } else {
+            all_tests_passed = false;
+            std::cerr << "FAIL : " << "Error: Expected [[22.99, 26.62], [52.03, 60.5]] but got " << *matrix_product << std::endl;
+        }
+    }
+
     std::cout<<std::endl;
     if(all_tests_passed) {
         std::cout << "All Tensor tests passed!" << std::endl;
